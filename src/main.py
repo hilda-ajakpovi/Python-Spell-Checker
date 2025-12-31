@@ -39,28 +39,30 @@ def spell_check_words(dictionary, words:str):
     :param words: input of user words (str)
     :param mispelled_words: list of mispelled words
     '''
-    counter = 0
     words = words.split()
     mispelled_words = WordList()
-    for word in words:
+
+    for index, word in enumerate(words):
         word = word.rstrip(string.punctuation) # remove trailing punctuation
         comparrison_word = word.strip().casefold() # convert word to lower and remove trailing and leading whitespace
+
         if comparrison_word not in dictionary:
-            counter += 1
-            mispelled_words.append(word)
-    return counter, mispelled_words
+            mispelled_words.append(word, index)
+    return mispelled_words
 
 def print_menu(mispelled_words:WordList):
     # Display current word along with surrounding words if applicable
-    current_word = mispelled_words.getInfo()
-    print(f'Current word is "{current_word}"')
-    previous_word = mispelled_words.previousItem()
-    next_word = mispelled_words.nextItem()
-    if mispelled_words.getSize() > 1:
+    current_word = mispelled_words.getInfo()['word']
+    size = mispelled_words.getSize()
+    print(f'\nCurrent word is "{current_word}"')
+    print(f"Total number of mispelled words: {size}")
+    if size > 1:
+        previous_word = mispelled_words.previousItem()['word']
+        next_word = mispelled_words.nextItem()['word']
         print(f'"{previous_word}" <- "{current_word}" -> "{next_word}"')
 
     print("Enter (w) to display list of all mispelled words")
-    if mispelled_words.getSize() > 1:
+    if size > 1:
         print("Enter (d) navigate right to next word")
         print("Enter (a) to navigate left to previous word")
     print("Enter (s) to select current word")
@@ -68,18 +70,53 @@ def print_menu(mispelled_words:WordList):
     print("Enter (q) to exit program")
     print("Enter (c) to choose a specific word to select")
 
-def select_word(selection:str, mispelled_words:WordList):
+def calculate_suggested_words(selection:str):
+    pass
+
+def display_suggested_words():
+    pass
+
+def add_to_dictionary(dictionary:set, word:str, user_input:str, mispelled_words:WordList):
+    dictionary.add(word.casefold().strip())
+    mispelled_words.removeAllItems(word)
+    print("Word added to dictionary")
+
+def print_selection_menu():
+    print("Enter the number associated with a suggested word to replace current word with suggestion")
+    print("Enter (d) to add this word to dictionary")
+    print("Enter (b) to go back to previous screen")
+
+def select_word(selection:str, mispelled_words:WordList, dictionary:set, user_input:str):
     if selection == 'c':
         mispelled_words_set = mispelled_words.createSet()
         print("Enter your word or (b) to go to previous screen")
         mispelled_words_set.add('b')
         word = input_handler.validator("Please enter a valid word or 'b'", mispelled_words_set, input_handler.validate_value)
+        word_info = mispelled_words.findItem(word)
+        word = word_info['word']
     else:
-        word = mispelled_words.getInfo()
+        word_info = mispelled_words.getInfo()
+        word = word_info['word']
     print(f'You have selected the word "{word}"')
-    # logic to display suggested word and to select and change the word to original input and add to dictionary
 
-def word_navigation(mispelled_words:WordList):
+    display_suggested_words()
+    print_selection_menu()
+
+    # calculate amount of suggested words
+    valid_inputs = {'d', 'b'}
+    for i in range(len(word_info['suggestions'])):
+        valid_inputs.add(str(i+1))
+
+    selection = input_handler.validator("Please enter a valid selection", valid_inputs, input_handler.validate_value)
+    if selection == 'd':
+        add_to_dictionary(dictionary, word, user_input, mispelled_words)
+    elif selection == 'b':
+        return
+    else:
+        pass
+        # select selection and update user input  
+
+def word_navigation(mispelled_words:WordList, dictionary:set, user_input:str):
     '''
     Contains word navigation loop. Continously print menu that allows user to loop 
     
@@ -99,7 +136,7 @@ def word_navigation(mispelled_words:WordList):
         output = ''
         for item in valid_choices:
             output += item + ", "
-        output.rstrip(", ")
+        output = output.rstrip(", ")
 
         selection = input_handler.validator(f"Please select from these choices: {output}", valid_choices, input_handler.validate_value)
         if size > 1:
@@ -110,11 +147,12 @@ def word_navigation(mispelled_words:WordList):
 
         if selection == 'w':
             print(mispelled_words)
-            time.sleep(3.5)
+            print("Enter any key to go back")
+            input(": ")
         elif selection == 's' or selection == 'c':
-            select_word(selection, mispelled_words)
+            select_word(selection, mispelled_words, dictionary, user_input)
         elif selection == "b":
-            print("Are you sure? This cannot be undone (y/n)")
+            print("Are you sure? This cannot be undone (y/n)") # prolly change
             new_selection = input_handler.validator("Please enter either y or n", ('y', 'n'), input_handler.validate_value)
             if new_selection == 'y':
                 return
@@ -138,11 +176,10 @@ def main():
     while True:
         user_input = get_user_words() # get user input from either typed or file input
 
-        num_mispelled_words, mispelled_words = spell_check_words(dictionary, user_input)
-        print(f"\nAmount of mispelled words: {num_mispelled_words}")
-
-        if num_mispelled_words > 0:
-           selection = word_navigation(mispelled_words)
+        mispelled_words = spell_check_words(dictionary, user_input)
+        #print(f"\nAmount of mispelled words: {num_mispelled_words}")
+        if mispelled_words.getSize() > 0:
+           selection = word_navigation(mispelled_words, dictionary, user_input)
            if selection == 'q':
                print("Exiting Program...")
                break

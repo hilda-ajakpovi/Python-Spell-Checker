@@ -24,17 +24,12 @@ def validate_ending(value, valid_ending):
         raise ValueError("\nInvalid File.")
     
 def open_files(file_name, mode:str):
-    
-    with open(file_name, mode) as file:
-        return file.read()
-    '''
     while True:
         try:
             with open(file_name, mode) as file:
-                print(mode)
                 if 'r' in mode:
                     return file.read()
         except:
             print("File does not exist. Please enter path to file again")
-            dictionary_name = validator("Please enter a .txt file", ".txt", validate_ending)
-    '''
+            file_name = validator("Please enter a .txt file", ".txt", validate_ending)
+    

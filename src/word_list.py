@@ -1,31 +1,42 @@
-from circular_dlinked_list import CircularDLinkedList
+#from circular_dlinked_list import CircularDLinkedList
 
 class WordList():
     '''
     An instance of this class represents a carousel
     '''
     def __init__(self):
-        self.__items = CircularDLinkedList()
+        self.__items = []
         self.__current = 0 # Index of active node
         self.__size = 0
         
-    def add(self, item):
+    def add(self, item, index):
         '''
         Responsible for adding a new node to the circular doubly-linked list.
         Input: item - data that will go into the new node
         Return: None
         '''
-        self.__items.insert(self.__current, item)
+        word_info = {
+            'word': item,
+            'og_index': index,
+            'suggestions': []
+        }
         self.__size += 1  
+        self.__items.insert(self.__current, word_info)
 
-    def append(self, item):
+    def append(self, item, index):
         '''
         Responsible for adding a new node to the end of the list
         Input: item - data that will go inside new node
         Return: None
         '''
-        self.__items.append(item)
-        self.__size += 1
+        word_info = {
+            'word': item,
+            'og_index': index,
+            'suggestions': []
+        }
+        self.__size += 1  
+        self.__items.append(word_info)
+
 
     def goLeft(self):
         '''
@@ -54,20 +65,20 @@ class WordList():
         Return: None
         '''
         try:
-            self.__items.delete(self.__current)
+            self.__items.pop(self.__current)
             self.__size -= 1
             self.goLeft() # without this, current goes to the item to the right of the deleted item
         except Exception as e:
             print(e)
              
     
-    def getInfo(self):
+    def getInfo(self) -> dict:
         '''
-        Retrieves and returns the data of the active node of the list
+        Retrieves and returns the info of the active node of the list
         Input: N/A
         Return: items - the data in the active node (double linked list)
         '''
-        item = self.__items.getItem(self.__current)
+        item = self.__items[self.__current]
         return item
     
     def current(self):
@@ -92,23 +103,37 @@ class WordList():
         Input: N/A
         Return: string reprsenation of list
         '''
-        return str(self.__items)
+        output = ''
+        for i in range(self.__size):
+            output += str(i+1) + '. ' + str(self.__items[i]['word']) + '\n'
+        output = output.rstrip()
+        return output
         
-    def previousItem(self):
+    def previousItem(self) -> dict:
         '''
         Retreives the data in the previous node from the active node
         Input: N/A
         Return: data from previous node
         '''
-        return self.__items.getPreviousNode(self.__current)
+        if self.__current == 0:
+            previousNode = self.__items[-1]
+        else:
+            previousNode = self.__items[self.__current - 1]
+
+        return previousNode
     
-    def nextItem(self):
+    def nextItem(self) -> dict:
         '''
         Retrieves the data in the next node from the active node
         Input: N/A
         Return: data from next node
         '''
-        return self.__items.getNextNode(self.__current)
+        if self.__current >= self.__size - 1:
+            nextNode = self.__items[0]
+        else:
+            nextNode = self.__items[self.__current + 1]
+        
+        return nextNode
     
     def getSize(self):
         '''
@@ -120,7 +145,7 @@ class WordList():
     
     def createSet(self):
         '''
-        Creates python set represenation of list
+        Creates python set represenation of words in list
         
         Input: N/A
         Return: word_set - set containg all the values in list
@@ -129,8 +154,33 @@ class WordList():
         current = self.__current # store current value
         self.__current = 0
         for i in range(self.__size):
-            word_set.add(self.getInfo())
+            word_set.add(self.getInfo()['word'].casefold().strip())
             self.__current += 1
         self.__current = current # restore current value
         return word_set
+    
+    def findItem(self, item):
+        '''
+        Finds first occurance of word in list
+        
+        Input: item - item to find
+        Return: dictionary associated to item, None if not found
+        '''
+        item = next((i for i in self.__items if i["word"].lower() == item).lower(), None)
+        return item
+    
+    def removeAllItems(self, item):
+        '''
+        Finds all instances of the item and removes them from list
+        
+        Input: item to be removed
+        Return: None
+        '''
+        for index, list_item in enumerate(self.__items):
+            if item.lower() == list_item["word"].lower():
+                self.__items.pop(index)
+                self.__size -= 1
+                if self.__current >= index:
+                    self.goLeft()
+
 
