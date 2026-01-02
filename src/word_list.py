@@ -9,7 +9,7 @@ class WordList():
         self.__current = 0 # Index of active node
         self.__size = 0
         
-    def add(self, item, index):
+    def add(self, item, start, end):
         '''
         Responsible for adding a new node to the circular doubly-linked list.
         Input: item - data that will go into the new node
@@ -17,13 +17,14 @@ class WordList():
         '''
         word_info = {
             'word': item,
-            'og_index': index,
+            'start': start,
+            'end': end,
             'suggestions': []
         }
         self.__size += 1  
         self.__items.insert(self.__current, word_info)
 
-    def append(self, item, index):
+    def append(self, item, start, end, index):
         '''
         Responsible for adding a new node to the end of the list
         Input: item - data that will go inside new node
@@ -31,6 +32,8 @@ class WordList():
         '''
         word_info = {
             'word': item,
+            'start': start,
+            'end': end,
             'og_index': index,
             'suggestions': []
         }
@@ -58,19 +61,21 @@ class WordList():
             self.__current += 1
             self.__current %= self.__size  
     
-    def delete(self):
+    def delete(self, index=None):
         '''
-        Removes the current node from the list. Increments the current index
+        Removes an item at a specified index
         Input: N/A
         Return: None
         '''
+        if index == None:
+            index = self.__current
         try:
-            self.__items.pop(self.__current)
+            self.__items.pop(index)
             self.__size -= 1
-            self.goLeft() # without this, current goes to the item to the right of the deleted item
+            if index <= self.__current:
+                self.goLeft() # without this, current goes to the item to the right of the deleted item
         except Exception as e:
-            print(e)
-             
+            print(e)     
     
     def getInfo(self) -> dict:
         '''
@@ -166,7 +171,7 @@ class WordList():
         Input: item - item to find
         Return: dictionary associated to item, None if not found
         '''
-        item = next((i for i in self.__items if i["word"].lower() == item).lower(), None)
+        item = next((i for i in self.__items if i["word"].lower() == item.lower()), None)
         return item
     
     def removeAllItems(self, item):
@@ -178,9 +183,36 @@ class WordList():
         '''
         for index, list_item in enumerate(self.__items):
             if item.lower() == list_item["word"].lower():
-                self.__items.pop(index)
-                self.__size -= 1
-                if self.__current >= index:
-                    self.goLeft()
+                self.delete(index)
 
+    def updateSuggestions(self, new_suggestions:list, item:str):
+        '''
+        changes the suggestions for all items in the list that are the same word
+        
+        Input: new_suggestions - list of suggested words, item - word whose suggestions should be updated
+        Return: None
+        '''
+        for list_item in self.__items:
+            if item.lower() == list_item["word"].lower() and len(list_item['suggestions']) == 0:
+                for suggestion in new_suggestions:
+                    list_item['suggestions'].append(suggestion['word'])
 
+    def getIndex(self, item:str):
+        '''
+        Finds and returns the index of the first occurance of an item give
+        
+        Input: item - item to find
+        Return: index - index of item, None if not found
+        '''
+        for index, list_item in enumerate(self.__items):
+            if list_item['word'].lower() == item.lower():
+                return index
+
+    def getItems(self):
+        '''
+        Getter function for list of items
+
+        Input: N/A
+        Return: None
+        '''
+        return self.__items
