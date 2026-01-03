@@ -20,15 +20,17 @@ def validate_value(value, valid_values):
         raise ValueError("\nInvalid Input.")
     
 def validate_ending(value, valid_ending):
-    if not value.endswith(valid_ending):
+    if not value.endswith(valid_ending) and value != 'q':
         raise ValueError("\nInvalid File.")
     
-def open_files(file_name, mode:str):
+def open_files(file_name, mode:str, text:str=None):
     while True:
         try:
             with open(file_name, mode) as file:
                 if 'r' in mode:
-                    return file.read()
+                    return file.read(), file_name
+                elif 'w' in mode:
+                    return file.write(text)
         except:
             print("File does not exist. Please enter path to file again")
             file_name = validator("Please enter a .txt file", ".txt", validate_ending)

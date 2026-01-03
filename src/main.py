@@ -9,29 +9,41 @@ def upload_dictionary(dictionary_name="dictionaries/words_alpha.txt"):
     '''
     loads a set of words from a file to serve as the dictionary for the program
     
-    :param dictionary_name: file to load words from. Set to the standard dictionary if no file is given (words_alpha.txt)
+    :param dictionary_name: file to load words from. Set to the standard dictionary if no file is given (words_alp
     '''
-    words = input_handler.open_files(dictionary_name, 'r')
+    words = open_file('r', file_name=dictionary_name)[0]
+    #words = input_handler.open_files(dictionary_name, 'r')
     return set(words.split())
 
 
-def open_file(mode:str, text=None):
-    file_name = input_handler.validator("Please enter a .txt file", ".txt", input_handler.validate_ending)
-    return input_handler.open_files(file_name, mode)
+def open_file(mode:str, text=None, file_name=None):
+    if file_name == None:
+        file_name = input_handler.validator("Please enter a .txt file", ".txt", input_handler.validate_ending)
+        if file_name == 'q':
+            return file_name
+    return input_handler.open_files(file_name, mode, text)
 
 def get_user_words():
     print("\nPlease select what you would like to input. File (a) or Typed Input (b)")
-    selection = input_handler.validator("Please Select a or b", ('a', 'b'), input_handler.validate_value)
+    selection = input_handler.validator("Please Select a or b", ('a', 'b', 'q'), input_handler.validate_value)
+    if selection == 'q':
+        return selection, None, None
+    file_name = None
     input_from_file = False
 
     if selection == 'a':
         print("Enter Path to your file")
-        user_input = open_file("r")
+        file, file_name = open_file("r")
+        if file_name == 'q':
+            return file_name, None, None
         input_from_file = True
+        user_input = file
     else:
         user_input = input("Enter your input: ")
+        if user_input.casefold().strip() == 'q':
+            return user_input, None, None
 
-    return user_input, input_from_file
+    return user_input, input_from_file, file_name
 
 def split_words(text:str) -> list[dict]:
     '''
@@ -114,10 +126,6 @@ def add_to_dictionary(dictionary:set, word:str, user_input:str, mispelled_words:
     mispelled_words.removeAllItems(word)
     print("Word added to dictionary")
 
-def display_word_context(mispelled_words:WordList, user_input:str):
-    words = user_input.split()
-    # find words at begining of sentence
-
 def edit_distance(word1:str, word2:str) -> int:
     '''
     Calculates minimum number of edits needed to transform word1 into word2 using Damerau-Levenshtein edit distance algorithm by
@@ -185,6 +193,7 @@ def max_allowed_distance(word:str) -> int:
         return 3
 
 def get_suggestions(mispelled_words:WordList, dictionary:set, word:dict):
+    print("Calculating word suggestions from dictionary...")
     dictionary_list = list(dictionary)
     max_dist = max_allowed_distance(word['word'].strip())
     suggestions = []
@@ -204,9 +213,6 @@ def get_suggestions(mispelled_words:WordList, dictionary:set, word:dict):
     mispelled_words.updateSuggestions(suggestions, word['word'])
 
 def display_word_suggestions(mispelled_words:WordList, word:dict, dictionary:set, start:int, end:int):
-    if len(word['suggestions']) == 0:
-        #get_suggestions(mispelled_words, dictionary, word)
-        print(word['suggestions'])
 
     if len(word['suggestions']) > 0:
         # create output string
@@ -261,7 +267,15 @@ def display_word_context(word:dict, user_input:str):
     output += '...'
     print(output)
 
-def replace_word(selected_option:int, word:dict, mispelled_words:WordList, user_input:str, selection:str) -> str:
+def modify_capitalization(user_input:str, start:int, word:str) -> str:
+    '''
+    Changes the first letter of a word to match the capitalization of the original word in the user's input
+    '''
+    if user_input[start].isupper():
+        return word[0].upper() + word[1:]
+    return word
+
+def replace_word(word:dict, mispelled_words:WordList, user_input:str, selection:str, selected_option:int=None, new_word:str=None) -> str:
     '''
     Replace a mispelled word with a selected suggested and modify user input
     
@@ -269,12 +283,17 @@ def replace_word(selected_option:int, word:dict, mispelled_words:WordList, user_
     words, user_input - string of user input, selection - whether user selected current word or typed a word
     Return: user_input - modified user_input
     '''
-    new_word = word['suggestions'][selected_option-1]
-    print(f'You have selected "{new_word}"')
+    if selected_option != None:
+        new_word = word['suggestions'][selected_option-1]
+    print(f'You have selected "{new_word}" to replace with')
+
+    new_word = modify_capitalization(user_input, word['start'], new_word)
 
     print("Would you like to replace all occurances? (y/n)")
-    user_answer = input_handler.validator("Please select either y or n", ('y', 'n'), input_handler.validate_value)
-    if user_answer == 'n':
+    user_answer = input_handler.validator("Please select either y or n", ('y', 'n', 'q'), input_handler.validate_value)
+    if user_answer == 'q':
+        return user_answer
+    elif user_answer == 'n':
         new_user_input = user_input[:word['start']] + new_word + user_input[word['end']:]
         # remove word from list of missplled words
         if selection == 'c':
@@ -291,30 +310,50 @@ def replace_word(selected_option:int, word:dict, mispelled_words:WordList, user_
                 new_user_input = new_user_input[:item['start']] + new_word + new_user_input[item['end']:]
                 mispelled_words.delete(index)
     print(f'Your new text is: "{new_user_input}"\n Would you like to save and continue? (y/n)')
-    user_answer = input_handler.validator("Please select either y or n", ('y', 'n'), input_handler.validate_value)
+    user_answer = input_handler.validator("Please select either y or n", ('y', 'n', 'q'), input_handler.validate_value)
     if user_answer == 'y':
-        # modify so that mispelled word is NOT deleted if user selected n
         return new_user_input
+    elif user_answer == 'q':
+        return user_answer
     else:
         return user_input
 
+def set_up_start_end(start:int, end:int, word_info:dict) -> tuple[int]:
+    if start < 0:
+        start = 0
+        if end >= len(word_info['suggestions']):
+            end = len(word_info['suggestions'])
+        if abs(start - end) < 5:
+            start = end - 5
+            if start < 0:
+                start = 0
+            if abs(start - end) < 5:
+                end = start + 5
+    return start, end
 
 def print_selection_menu():
     print("Enter the number associated with a suggested word to replace current word with suggestion")
     print("Enter (d) to add this word to dictionary")
+    print("Enter (c) to write your own custom replacement")
+    print("Enter (r) to remove this word as a misspelled word")
     print("Enter (b) to go back to previous screen")
 
 def select_word(selection:str, mispelled_words:WordList, dictionary:set, user_input:str):
     if selection == 'c':
         mispelled_words_set = mispelled_words.createSet()
+        mispelled_words_set.add('q')
         print("Enter your word or (b) to go to previous screen")
         mispelled_words_set.add('b')
         word = input_handler.validator("Please enter a valid word or 'b'", mispelled_words_set, input_handler.validate_value)
         if word == 'b':
-            return
+            return user_input
+        elif word == 'q':
+            return user_input
         word_info = mispelled_words.findItem(word)
+        index = mispelled_words.getIndex(word)
         word = word_info['word']
     else:
+        index = mispelled_words.current()
         word_info = mispelled_words.getInfo()
         word = word_info['word']
 
@@ -327,29 +366,19 @@ def select_word(selection:str, mispelled_words:WordList, dictionary:set, user_in
     end = 5 # end index so that only 5 are displayed at a time
     total_words = len(word_info['suggestions'])
     while True:
-        if start < 0:
-            start = 0
-        if end >= len(word_info['suggestions']):
-            end = len(word_info['suggestions'])
-        if abs(start - end) < 5:
-            start = end - 5
-            if start < 0:
-                start = 0
-            if abs(start - end) < 5:
-                end = start + 5
+        # set up start and end indecies to display at most 5 suggested words at at time
+        start, end = set_up_start_end(start, end, word_info)
         display_word_suggestions(mispelled_words, word_info, dictionary, start, end)
+
         print_selection_menu()
 
-        # calculate amount of suggested words
-        valid_inputs = {'d', 'b'}
-        suggested_words = word_info['suggestions'][start:end]
+        # set up valid_input
+        valid_inputs = {'d', 'b', 'c', 'r', 'q'}
         for i in range(start, end):
             valid_inputs.add(str(i+1))
-
         if total_words >= 5:
             print("Enter (m) to see more suggestions")
             valid_inputs.add('m')
-        
         if start >= 1:
             print("Enter (l) to show previous suggested words")
             valid_inputs.add('l')
@@ -357,9 +386,9 @@ def select_word(selection:str, mispelled_words:WordList, dictionary:set, user_in
         selected_option = input_handler.validator("Please enter a valid selection", valid_inputs, input_handler.validate_value)
         if selected_option == 'd':
             add_to_dictionary(dictionary, word, user_input, mispelled_words)
-            return
+            return user_input
         elif selected_option == 'b':
-            return
+            return user_input
         elif selected_option == 'm':
             start += 5
             end += 5
@@ -368,9 +397,18 @@ def select_word(selection:str, mispelled_words:WordList, dictionary:set, user_in
             start -= 5
             end -= 5
             total_words += 5
+        elif selected_option == 'c':
+            custom_word = input("Enter your new word (Entering 'q' here does not exit program): ").strip()
+            return replace_word(word_info, mispelled_words, user_input, selection, new_word=custom_word)
+        elif selected_option == 'r':
+            mispelled_words.delete(index)
+            print("Word removed")
+            return user_input
+        elif selected_option == 'q':
+            return selected_option
         else:
             # select selection and update user input  
-            return replace_word(int(selected_option), word_info, mispelled_words, user_input, selection)
+            return replace_word(word_info, mispelled_words, user_input, selection, int(selected_option))
 
 def word_navigation(mispelled_words:WordList, dictionary:set, user_input:str):
     '''
@@ -404,57 +442,95 @@ def word_navigation(mispelled_words:WordList, dictionary:set, user_input:str):
         if selection == 'w':
             print(mispelled_words)
             print("Enter any key to go back")
-            input(": ")
+            if input(": ").casefold().strip() == 'q':
+                break
         elif selection == 's' or selection == 'c':
             user_input = select_word(selection, mispelled_words, dictionary, user_input)
+            if user_input == 'q':
+                break
         elif selection == "b":
             print("Are you sure? This cannot be undone (y/n)") # prolly change
-            new_selection = input_handler.validator("Please enter either y or n", ('y', 'n'), input_handler.validate_value)
+            new_selection = input_handler.validator("Please enter either y or n", ('y', 'n', 'q'), input_handler.validate_value)
             if new_selection == 'y':
                 return user_input
+            elif new_selection == 'q':
+                return new_selection
         elif selection == 'i':
-            print('user_input')
+            print(user_input)
+            print("Enter any key to go back")
+            if input(": ").casefold().strip() == 'q':
+                break
         elif selection == 'q': 
             return selection
     return user_input
 
 def main():
     print("\n***Welcome to Spell Checker.***\nInput either a file or your own input to spell check the words.\nFeel free to upload your own dictionary or use the standard dictionary")
+    print("Enter (q) at any point to exit the program")
     print("Would you like to use your own dictionary (a) or the standard dictionary (b)?")
 
     # open and assign appropriate dictionary
-    selection = input_handler.validator("Please Select personal dictionary (a) or standard dictionary (b)", ('a', 'b'), input_handler.validate_value)
-    if selection == 'a':
+    selection = input_handler.validator("Please Select personal dictionary (a) or standard dictionary (b)", ('a', 'b', 'q'), input_handler.validate_value)
+    if selection == 'q':
+        print("Exiting Program...")
+        return
+    elif selection == 'a':
         print("Enter path to your file")
         file_name = input_handler.validator("Please enter a .txt file", ".txt", input_handler.validate_ending)
+        if file_name == 'q':
+            print("Exiting Program...")
+            return
         dictionary = upload_dictionary(file_name)
     else:
         dictionary = upload_dictionary()
 
     # Program loop
     while True:
-        user_input, input_from_file = get_user_words() # get user input from either typed or file input
+        user_input, input_from_file, file_name = get_user_words() # get user input from either typed or file input
+        if user_input == 'q':
+            print("Exiting Program...")
+            break
 
         mispelled_words = spell_check_words(dictionary, user_input)
         #print(f"\nAmount of mispelled words: {num_mispelled_words}")
         if mispelled_words.getSize() > 0:
-           output = word_navigation(mispelled_words, dictionary, user_input)
-           if output == 'q':
-               print("Exiting Program...")
-               break
-           
-           if input_from_file:
-               print("Would you like to save your text to a file? (y/n)")
-               selection = input_handler.validator("Please enter either y or n", ('y', 'n'), input_handler.validate_value)
-               if selection == 'y':
-                   print("Enter path to your file")
-                   open_file("w", output)
+            output = word_navigation(mispelled_words, dictionary, user_input)
+            if output == 'q':
+                print("Exiting Program...")
+                break
+
+            print("Would you like to save your text to a file? (y/n)")
+            selection = input_handler.validator("Please enter either y or n", ('y', 'n'), input_handler.validate_value)
+            if selection == 'q':
+                print("Exiting Program...")
+                return
+            elif selection == 'y':
+                if input_from_file:
+                    print("Would you like to save your text to your original file? (y/n)")
+                    selection = input_handler.validator("Please enter either y or n", ('y', 'n', 'q'), input_handler.validate_value)
+                    if selection == 'y':
+                        open_file("w", output, file_name)
+                    if selection == 'q':
+                        print("Exiting Program...")
+                        return
+                    else:
+                        if open_file("w", output) == 'q':
+                            print("Exiting Program...")
+                            return
+                else:
+                    if open_file("w", output) == 'q':
+                        print("Exiting Program...")
+                        return
+
+                print("File updated.") 
+
         else:
             print("No misspelled words found.")
             
         print("Would you like to go again with new input? (y/n)")
-        selection = input_handler.validator("Please enter either y or n", ('y', 'n'), input_handler.validate_value)
-        if selection == 'n':
+        selection = input_handler.validator("Please enter either y or n", ('y', 'n', 'q'), input_handler.validate_value)
+        if selection == 'n' or selection == 'q':
+            print("Goodbye")
             break
 
 
