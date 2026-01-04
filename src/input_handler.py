@@ -1,10 +1,19 @@
-def validator(prompt:str, valid_values, validate_function):
+'''
+Input Handler
+Hilda Ajakpovi
+
+This file contains functions for validating user input (input is continously asked from user until it is valid) and for opening files
+(often from user input)
+'''
+
+
+def validator(prompt:str, valid_values, validate_function:function):
     '''
     This function checks if a value is valid and keeps retrying it until it is valid
     
-    :param prompt: Additional promt to display if value is invalid (str)
-    :param valid_values: tupple of valid values or valid ending of a file
-    validate_function: function to call to check if value is valid
+    Input: prompt - Additional prompt to display if value is invalid, valid_valus - valid valus or ending of a file, validate_function
+    - function to call to check if value is valid
+    Return: value - value that is garunteed to be valid
     '''
     while True:
         try:

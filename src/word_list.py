@@ -1,8 +1,35 @@
-#from circular_dlinked_list import CircularDLinkedList
+'''
+Word List
+Hilda Ajakpovi
 
+This WordList class is used to store a list of misspelled words. It contains properties such as items - a list of the actual items 
+that eventually becomes a list of dicts, current - an int that stores the index item in the list that the user is currently viewing
+as the current word, size - an int that stores the number of words in the list (allows for duplicates)
+
+This class has the following methods
+    - add: adds a dictionary with keys 'word' - str of the actual misspelled word, 'start' - the start index of the word from original
+            text, 'end' - the end index of the word from the original text, 'suggestions' - a list suggested correctly spelt words based
+            on the misspelled word from the given dictionary
+    - append: same as add but instead adds the dictionary to the end of the list
+    - goLeft: increments the current property and wraps around to beggining of list if current is set to the last element
+    - goRight decrements the current property and wraps around to the end of the list if current is set to the first element
+    - delete: removes item at a specified index or the item at current index if no index is given
+    - getInfo: returns item at current index
+    - current: returns int - current index
+    - setCurrent: allows for current index to be changed to any valid value
+    - previousItem: returns the item at the index one less than current or at end of list if current = 0
+    - nextItem: returns the item at the index one greater than current or at the beggining of list if current = size-1
+    - getSize: returns the amount of items in the list (size)
+    - createSet: creates and returns a set representaion of items in the list
+    - findItem: finds and returns the first instance of an item in the list whose key 'word' has a value that matches the given value
+    - removeAllItems: removes all items in the list whose 'word' key has a value that matches the given value
+    - updateSuggestions: adds suggested words as value for 'suggestions' key for a value item in the list
+    - getIndex: returns the index of the first occurance of an item whose 'word' key has a value that matches the given value
+    - getItems: returns the list of items
+'''
 class WordList():
     '''
-    An instance of this class represents a carousel
+    An instance of this class represents a blackbox circular list of words 
     '''
     def __init__(self):
         self.__items = []
@@ -11,7 +38,7 @@ class WordList():
         
     def add(self, item, start, end):
         '''
-        Responsible for adding a new node to the circular doubly-linked list.
+        Responsible for adding a new node to the circular list.
         Input: item - data that will go into the new node
         Return: None
         '''
@@ -96,10 +123,11 @@ class WordList():
     
     def setCurrent(self, newCurrent):
         '''
-        Setter function for the current attribute
-        Input: what the new current (index of active node) should be
+        Setter function for the current attribute. Throws an exception if newCurrent is not a valid value
+        Input: newCurrent - what the new current (index of active node) should be
         Return: None
         '''
+        assert 0 <= newCurrent < self.__size
         self.__current = newCurrent
     
     def __str__(self):
@@ -156,12 +184,8 @@ class WordList():
         Return: word_set - set containg all the values in list
         '''
         word_set = set()
-        current = self.__current # store current value
-        self.__current = 0
-        for i in range(self.__size):
-            word_set.add(self.getInfo()['word'].casefold().strip())
-            self.__current += 1
-        self.__current = current # restore current value
+        for item in self.__items:
+            word_set.add(item['word'].casefold().strip())
         return word_set
     
     def findItem(self, item):
