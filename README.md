@@ -26,7 +26,7 @@ The workflow runs through an absolute execution order across specialized modular
 1. **Dictionary Selection (`main.py` & `input_handler.py`)**: The script initializes by prompting the user to load a custom reference lexicon or default to the local `words_alpha.txt` compilation file.
 2. **Target File Ingestion**: The operator inputs raw string blocks or provides a system path to an external text asset.
 3. **Word Tokenization (`spell_checker.py`)**: The input stream passes through character scanning routines to separate alphabetical terms while preserving interior special characters like hyphens and apostrophes.
-4. **Validation Filter**: Validated words undergo comparative matching against the reference dataset with continuous O(1) verification speed. Unmatched terms are logged directly into a tracking list.
+4. **Validation Filter**: Validated words undergo comparative matching against the reference dataset with continuous O(1) verification speed with the use of a python dictionary. Unmatched terms are logged directly into a tracking list.
 5. **Interactive UI (`selection_of_word.py` & `word_list.py`)**: Users navigate spelling mismatches via text-based choice selectors, utilizing a dynamic calculation algorithm to paginate word correction options.
 6. **Persistence Saving**: Corrected text modifications update the terminal screen and append directly back onto storage disks.
    
