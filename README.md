@@ -74,7 +74,7 @@ The workflow runs through an absolute execution order across specialized modular
 
 This section lists the fundamental building blocks used to bootstrap your project. This tool relies cleanly on pure Python core architecture and native system libraries to provide execution portability without bulky platform stacks.
 
-* [Python](https://www.python.org/) - Built using core standard runtimes (Core built-in libraries: `string`, `time`, `typing`).
+* [Python](https://www.python.org/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
