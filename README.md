@@ -13,7 +13,7 @@ Workflow for interface:
 
 ## 📖 Project Overview & Real-World Use Cases
 
-The **Interactive Terminal Spell Checker** is a professional-grade, command-line utility built to automate the detection and correction of typographical errors in plaintext assets. Instead of forcing users to rely on resource-heavy, graphical word processors, this application provides a lightweight, highly responsive, keyboard-driven environment that operates entirely within a terminal shell.
+The **Interactive Terminal Spell Checker** is a command-line utility built to automate the detection and correction of typographical errors in plaintext. This application provides a lightweight, highly responsive, keyboard-driven environment that operates entirely within a terminal shell.
 
 ### What It Does
 At its core, the program ingests source text (either directly typed into the prompt or loaded from a `.txt` file), strips out formatting to isolate individual words, and cross-references them against an optimized dictionary database. When it catches a misspelled word, it doesn't just flag it—it calculates the most statistically likely corrections using advanced natural language processing strings and opens a structural menu allowing the operator to selectively fix or track errors.
