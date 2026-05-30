@@ -68,7 +68,6 @@ The workflow runs through an absolute execution order across specialized modular
          | Compute Edit Distance |   | Commit String Changes |
          |   (suggestions.py)    |   |  & Export File State  |
          +-----------------------+   +-----------------------+
-   <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Built With
 
