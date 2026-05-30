@@ -18,17 +18,6 @@ The **Interactive Terminal Spell Checker** is a command-line utility built to au
 ### What It Does
 At its core, the program ingests source text (either directly typed into the prompt or loaded from a `.txt` file), strips out formatting to isolate individual words, and cross-references them against an optimized dictionary database. When it catches a misspelled word, it doesn't just flag it—it calculates the most statistically likely corrections using advanced natural language processing strings and opens a structural menu allowing the operator to selectively fix or track errors.
 
-## About The Project
-
-There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
-
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others.
-* You shouldn't be doing the same tasks over and over like creating a README from scratch.
-* You should implement DRY (Don't Repeat Yourself) principles to the rest of your life 😄
-
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people who have contributed to expanding this template!
-
 ### Program Core Concepts & Overview
 This terminal software serves as an interactive spell checking tool for plaintext assets. It isolates individual string words, references them against an optimized lookup vocabulary set, caches spelling anomalies inside a localized data structure, and gives the operator real-time correction choices.
 
