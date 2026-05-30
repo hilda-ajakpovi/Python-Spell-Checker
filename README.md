@@ -29,45 +29,46 @@ The workflow runs through an absolute execution order across specialized modular
 4. **Validation Filter**: Validated words undergo comparative matching against the reference dataset with continuous O(1) verification speed. Unmatched terms are logged directly into a tracking list.
 5. **Interactive UI (`selection_of_word.py` & `word_list.py`)**: Users navigate spelling mismatches via text-based choice selectors, utilizing a dynamic calculation algorithm to paginate word correction options.
 6. **Persistence Saving**: Corrected text modifications update the terminal screen and append directly back onto storage disks.
-             +---------------------------------------+
-             |       Initialize Application          |
-             |      (main.py / result_class.py)      |
-             +-------------------+-------------------+
-                                 |
-                                 v
-             +---------------------------------------+
-             |       Load Reference Dictionary       |
-             |        (O(1) Hash Set Lookup)         |
-             +-------------------+-------------------+
-                                 |
-                                 v
-             +---------------------------------------+
-             |   Ingest Source Text (File or CLI)    |
-             +-------------------+-------------------+
-                                 |
-                                 v
-             +---------------------------------------+
-             |       Tokenize & Parse Words          |
-             |         (spell_checker.py)            |
-             +-------------------+-------------------+
-                                 |
-                                 v
-             +---------------------------------------+
-             |  Isolate Typos into Circular List     |
-             |          (word_list.py)               |
-             +-------------------+-------------------+
-                                 |
-                                 v
-             +---------------------------------------+
-             |    Interactive Navigation Menu        |
-             |      (selection_of_word.py)           |
-             +----------+-----------------+----------+
-                        |                 |
-                        v                 v
-         +-----------------------+   +-----------------------+
-         | Compute Edit Distance |   | Commit String Changes |
-         |   (suggestions.py)    |   |  & Export File State  |
-         +-----------------------+   +-----------------------+
+             ```text
+       +---------------------------------------+
+       |       Initialize Application          |
+       |      (main.py / result_class.py)      |
+       +-------------------+-------------------+
+                           |
+                           v
+       +---------------------------------------+
+       |       Load Reference Dictionary       |
+       |        (O(1) Hash Set Lookup)         |
+       +-------------------+-------------------+
+                           |
+                           v
+       +---------------------------------------+
+       |   Ingest Source Text (File or CLI)    |
+       +-------------------+-------------------+
+                           |
+                           v
+       +---------------------------------------+
+       |       Tokenize & Parse Words          |
+       |         (spell_checker.py)            |
+       +-------------------+-------------------+
+                           |
+                           v
+       +---------------------------------------+
+       |  Isolate Typos into Circular List     |
+       |          (word_list.py)               |
+       +-------------------+-------------------+
+                           |
+                           v
+       +---------------------------------------+
+       |    Interactive Navigation Menu        |
+       |      (selection_of_word.py)           |
+       +----------+-----------------+----------+
+                  |                 |
+                  v                 v
+   +-----------------------+   +-----------------------+
+   | Compute Edit Distance |   | Commit String Changes |
+   |   (suggestions.py)    |   |  & Export File State  |
+   +-----------------------+   +-----------------------+
 
 ### Built With
 
