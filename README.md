@@ -67,3 +67,127 @@ The workflow runs through an absolute execution order across specialized modular
 4. **Validation Filter**: Validated words undergo comparative matching against the reference dataset with continuous O(1) verification speed. Unmatched terms are logged directly into a tracking list.
 5. **Interactive UI (`selection_of_word.py` & `word_list.py`)**: Users navigate spelling mismatches via text-based choice selectors, utilizing a dynamic calculation algorithm to paginate word correction options.
 6. **Persistence Saving**: Corrected text modifications update the terminal screen and append directly back onto storage disks.
++---------------------------------------+
+             |       Initialize Application          |
+             |      (main.py / result_class.py)      |
+             +-------------------+-------------------+
+                                 |
+                                 v
+             +---------------------------------------+
+             |       Load Reference Dictionary       |
+             |        (O(1) Hash Set Lookup)         |
+             +-------------------+-------------------+
+                                 |
+                                 v
+             +---------------------------------------+
+             |   Ingest Source Text (File or CLI)    |
+             +-------------------+-------------------+
+                                 |
+                                 v
+             +---------------------------------------+
+             |       Tokenize & Parse Words          |
+             |         (spell_checker.py)            |
+             +-------------------+-------------------+
+                                 |
+                                 v
+             +---------------------------------------+
+             |  Isolate Typos into Circular List     |
+             |          (word_list.py)               |
+             +-------------------+-------------------+
+                                 |
+                                 v
+             +---------------------------------------+
+             |    Interactive Navigation Menu        |
+             |      (selection_of_word.py)           |
+             +----------+-----------------+----------+
+                        |                 |
+                        v                 v
+         +-----------------------+   +-----------------------+
+         | Compute Edit Distance |   | Commit String Changes |
+         |   (suggestions.py)    |   |  & Export File State  |
+         +-----------------------+   +-----------------------+
+   <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Built With
+
+This section lists the fundamental building blocks used to bootstrap your project. This tool relies cleanly on pure Python core architecture and native system libraries to provide execution portability without bulky platform stacks.
+
+* [Python](https://www.python.org/) - Built using core standard runtimes (Core built-in libraries: `string`, `time`, `typing`).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Getting Started
+
+Follow these simple structural instructions to establish a local copy of this interactive shell environment up and running smoothly.
+
+### Prerequisites
+
+This environment relies entirely on standard built-in execution mechanics. There are no heavy third-party distribution packages to compile.
+* **Python 3.10+** (Ensure Python is initialized inside your global system path variables).
+
+### Installation
+
+1. Clone the repository:
+   ```sh
+   git clone [https://github.com/github_username/repo_name.git](https://github.com/github_username/repo_name.git)
+Verify your folder structure matches the modular script composition:
+
+Plaintext
+.
+├── main.py
+├── input_handler.py
+├── result_class.py
+├── selection_of_word.py
+├── spell_checker.py
+├── suggestions.py
+└── word_list.py
+Establish a standard wordlist text file inside a dictionaries subdirectory:
+
+Bash
+mkdir dictionaries
+# Place your target word file at dictionaries/words_alpha.txt
+Usage
+Run the primary automation layer directly inside your console terminal shell:
+
+Bash
+python main.py
+Step-by-Step Operation Guide
+Choose a Dictionary File: Choose option a to route towards a custom vocabulary asset path, or option b to deploy the standard reference set.
+
+Provide Raw Content Data: Select option a to provide a local .txt file path, or option b to write text directly into the open shell prompt.
+
+Execute Correction Menu: If spelling errors are identified, the terminal launches the active edit interface.
+
+Interactive Terminal Key Controls
+When interacting with the main typo modification engine, manage processing loops using these input controls:
+
+d: Navigate forward/rightward to inspect the next logged spelling error.
+
+a: Navigate backward/leftward to review a previous spelling error.
+
+w: Show an index table list tracking every active spelling failure.
+
+s: Focus on the current active word to generate spelling recommendations.
+
+c: Search for a specific misspelled word token string within the array.
+
+i: Review the current state of your complete text block.
+
+q: Terminate active processing blocks and exit the program safely.
+
+Sub-Selection Menu Keys (Active Word Modification)
+Once you press s on an active typo string, the calculation module generates suggestions using the Damerau-Levenshtein alignment matrix:
+
+1, 2, 3...: Enter the numeric key corresponding to a suggestion to replace the text mismatch.
+
+m: Paginate forward to display more word suggestions (displays 5 items per screen view).
+
+l: Paginate backward to reveal preceding word suggestions.
+
+d: Add the active typo directly into the active dictionary cache to prevent future alerts.
+
+c: Type out a custom string replacement manually.
+
+r: Erase the targeted word flag from the spelling queue without modifying the underlying text.
+
+b: Reverse execution state back towards the previous structural tracking interface.
